@@ -4,6 +4,7 @@ import { Building, Calendar, MapPin, ChevronRight } from 'lucide-react';
 const Experience: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const experiences = [
     {
@@ -95,11 +96,54 @@ const Experience: React.FC = () => {
       observer.observe(element);
     }
 
-    return () => observer.disconnect();
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   return (
     <section className="py-20 relative">
+      {/* Cursor follow glow */}
+      <motion.div
+        className="fixed w-96 h-96 pointer-events-none z-10"
+        style={{
+          background: "radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, transparent 70%)",
+          left: mousePosition.x - 192,
+          top: mousePosition.y - 192,
+        }}
+        animate={{
+          scale: [1, 1.4, 1],
+          opacity: [0.2, 0.5, 0.2]
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+
+      {/* Animated timeline background */}
+      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-cyan-500/30 to-transparent transform -translate-x-1/2 hidden md:block">
+        <motion.div
+          className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-cyan-400 to-transparent"
+          animate={{
+            y: [0, 200, 400, 600, 800],
+            opacity: [1, 0.8, 0.6, 0.4, 0]
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+      </div>
+
       <div className="container mx-auto px-4">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="text-center mb-16">
@@ -129,24 +173,113 @@ const Experience: React.FC = () => {
                 >
                   <div className={`flex flex-col md:flex-row ${index % 2 === 0 ? 'md:flex-row-reverse' : ''} items-center`}>
                     {/* Timeline Node */}
-                    <div className="absolute left-8 md:left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 border-4 border-black z-10 animate-pulse flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                    </div>
+                    <motion.div 
+                      className="absolute left-8 md:left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 border-4 border-black z-10 flex items-center justify-center"
+                      animate={{
+                        scale: [1, 1.3, 1],
+                        boxShadow: [
+                          "0 0 0 0 rgba(6, 182, 212, 0.4)",
+                          "0 0 0 15px rgba(6, 182, 212, 0)",
+                          "0 0 0 0 rgba(6, 182, 212, 0.4)"
+                        ]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: index * 0.3
+                      }}
+                      whileHover={{
+                        scale: 1.5,
+                        rotate: 180
+                      }}
+                    >
+                      <motion.div 
+                        className="w-2 h-2 bg-white rounded-full"
+                        animate={{
+                          scale: [1, 1.5, 1]
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          delay: index * 0.2
+                        }}
+                      />
+                    </motion.div>
 
                     {/* Content Card */}
                     <div className={`w-full md:w-5/12 ml-16 md:ml-0 ${index % 2 === 0 ? 'md:mr-8' : 'md:ml-8'}`}>
-                      <div className={`p-6 rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl group ${colorMap[exp.color as keyof typeof colorMap]}`}>
+                      <motion.div 
+                        className={`p-6 rounded-xl border backdrop-blur-sm transition-all duration-300 group ${colorMap[exp.color as keyof typeof colorMap]} relative overflow-hidden`}
+                        whileHover={{ 
+                          scale: 1.05,
+                          y: -10,
+                          boxShadow: "0 25px 50px rgba(0, 0, 0, 0.2)"
+                        }}
+                        initial={{ opacity: 0, x: index % 2 === 0 ? 100 : -100 }}
+                        animate={visibleItems.includes(index) ? { opacity: 1, x: 0 } : {}}
+                        transition={{ delay: index * 0.2, duration: 0.8, ease: "backOut" }}
+                      >
+                        {/* Animated background gradient */}
+                        <motion.div
+                          className="absolute inset-0 opacity-0 group-hover:opacity-10"
+                          animate={{
+                            background: [
+                              "linear-gradient(45deg, transparent, rgba(6, 182, 212, 0.1), transparent)",
+                              "linear-gradient(135deg, transparent, rgba(139, 92, 246, 0.1), transparent)",
+                              "linear-gradient(225deg, transparent, rgba(236, 72, 153, 0.1), transparent)",
+                              "linear-gradient(315deg, transparent, rgba(6, 182, 212, 0.1), transparent)"
+                            ]
+                          }}
+                          transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "linear"
+                          }}
+                        />
+
                         {/* Company Header */}
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
-                            <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-300">
+                            <motion.h3 
+                              className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-300"
+                              whileHover={{
+                                scale: 1.05,
+                                x: 5
+                              }}
+                            >
                               {exp.company}
-                            </h3>
-                            <p className={`font-semibold mt-1 ${iconColorMap[exp.color as keyof typeof iconColorMap]}`}>
+                            </motion.h3>
+                            <motion.p 
+                              className={`font-semibold mt-1 ${iconColorMap[exp.color as keyof typeof iconColorMap]}`}
+                              animate={{
+                                color: [
+                                  iconColorMap[exp.color as keyof typeof iconColorMap].replace('text-', '#'),
+                                  "#ffffff",
+                                  iconColorMap[exp.color as keyof typeof iconColorMap].replace('text-', '#')
+                                ]
+                              }}
+                              transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                            >
                               {exp.role}
-                            </p>
+                            </motion.p>
                           </div>
-                          <Building className={`w-6 h-6 ${iconColorMap[exp.color as keyof typeof iconColorMap]} opacity-80`} />
+                          <motion.div
+                            animate={{
+                              rotate: [0, 10, -10, 0],
+                              scale: [1, 1.1, 1]
+                            }}
+                            transition={{
+                              duration: 4,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            <Building className={`w-6 h-6 ${iconColorMap[exp.color as keyof typeof iconColorMap]} opacity-80 group-hover:opacity-100 transition-opacity duration-300`} />
+                          </motion.div>
                         </div>
 
                         {/* Meta Information */}
@@ -164,13 +297,38 @@ const Experience: React.FC = () => {
                         {/* Description */}
                         <ul className="space-y-2">
                           {exp.description.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-gray-300 text-sm leading-relaxed">
-                              <ChevronRight className={`w-4 h-4 mt-0.5 ${iconColorMap[exp.color as keyof typeof iconColorMap]} flex-shrink-0`} />
-                              <span>{item}</span>
-                            </li>
+                            <motion.li 
+                              key={idx} 
+                              className="flex items-start gap-2 text-gray-300 text-sm leading-relaxed"
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={visibleItems.includes(index) ? { opacity: 1, x: 0 } : {}}
+                              transition={{ delay: index * 0.2 + idx * 0.1, duration: 0.5 }}
+                              whileHover={{ x: 5, color: "#ffffff" }}
+                            >
+                              <motion.div
+                                animate={{
+                                  rotate: [0, 90, 0],
+                                  scale: [1, 1.2, 1]
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  delay: idx * 0.3
+                                }}
+                              >
+                                <ChevronRight className={`w-4 h-4 mt-0.5 ${iconColorMap[exp.color as keyof typeof iconColorMap]} flex-shrink-0`} />
+                              </motion.div>
+                              <motion.span
+                                whileHover={{
+                                  color: "#ffffff"
+                                }}
+                              >
+                                {item}
+                              </motion.span>
+                            </motion.li>
                           ))}
                         </ul>
-                      </div>
+                      </motion.div>
                     </div>
                   </div>
                 </div>

@@ -2,9 +2,39 @@ import React, { useEffect, useState } from 'react';
 import { Download, ArrowDown, Github, Linkedin, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+// Typewriter effect component
+const TypewriterText = ({ text, delay = 0, speed = 100 }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (currentIndex < text.length) {
+        setDisplayText(prev => prev + text[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }
+    }, delay + currentIndex * speed);
+
+    return () => clearTimeout(timer);
+  }, [currentIndex, text, delay, speed]);
+
+  return (
+    <span>
+      {displayText}
+      <motion.span
+        className="inline-block w-0.5 h-6 bg-cyan-400 ml-1"
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{ duration: 1, repeat: Infinity }}
+      />
+    </span>
+  );
+};
+
 const Hero: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [currentRole, setCurrentRole] = useState(0);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showTypewriter, setShowTypewriter] = useState(false);
 
   const roles = [
     'AI/ML Engineer',
@@ -91,6 +121,16 @@ const Hero: React.FC = () => {
   useEffect(() => {
     setIsVisible(true);
     
+    // Start typewriter effect after name animation
+    setTimeout(() => {
+      setShowTypewriter(true);
+    }, 3000);
+
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    
     const interval = setInterval(() => {
       setCurrentRole((prev) => (prev + 1) % roles.length);
     }, 3000);
@@ -105,11 +145,92 @@ const Hero: React.FC = () => {
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl animate-ping"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div 
+          className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.5, 1],
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+            opacity: [0.1, 0.3, 0.1]
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.3, 1],
+            x: [0, -80, 0],
+            y: [0, 60, 0],
+            opacity: [0.1, 0.25, 0.1]
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+        />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl"
+          animate={{
+            scale: [1, 2, 1],
+            rotate: [0, 360],
+            opacity: [0.1, 0.4, 0.1]
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        {/* Floating orbs */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-4 h-4 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full opacity-20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              x: [0, Math.random() * 200 - 100, 0],
+              scale: [0, 1, 0],
+              opacity: [0, 0.6, 0]
+            }}
+            transition={{
+              duration: Math.random() * 6 + 4,
+              repeat: Infinity,
+              delay: Math.random() * 3
+            }}
+          />
+        ))}
       </div>
+
+      {/* Cursor follow glow */}
+      <motion.div
+        className="fixed w-96 h-96 pointer-events-none z-10"
+        style={{
+          background: "radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, transparent 70%)",
+          left: mousePosition.x - 192,
+          top: mousePosition.y - 192,
+        }}
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.6, 0.3]
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
 
       <div className="container mx-auto px-4 text-center relative z-10">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -143,21 +264,25 @@ const Hero: React.FC = () => {
 
           {/* Animated Role Subtitle */}
           <div className="h-16 mb-8 flex items-center justify-center">
-            <h2 className="text-xl md:text-2xl lg:text-3xl">
-              <div className="flex flex-wrap justify-center gap-1">
-                {subtitle.split('').map((letter, index) => (
-                  <motion.span
-                    key={index}
-                    className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400"
-                    variants={subtitleVariants}
-                    initial="initial"
-                    animate={["animate", "wave"]}
-                    custom={index}
-                  >
-                    {letter === ' ' ? '\u00A0' : letter}
-                  </motion.span>
-                ))}
-              </div>
+            <h2 className="text-xl md:text-2xl lg:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">
+              {showTypewriter ? (
+                <TypewriterText text={subtitle} delay={0} speed={80} />
+              ) : (
+                <div className="flex flex-wrap justify-center gap-1">
+                  {subtitle.split('').map((letter, index) => (
+                    <motion.span
+                      key={index}
+                      className="inline-block"
+                      variants={subtitleVariants}
+                      initial="initial"
+                      animate={["animate", "wave"]}
+                      custom={index}
+                    >
+                      {letter === ' ' ? '\u00A0' : letter}
+                    </motion.span>
+                  ))}
+                </div>
+              )}
             </h2>
           </div>
 
@@ -168,26 +293,34 @@ const Hero: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 3, duration: 1 }}
           >
-            <motion.span
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              style={{
-                background: "linear-gradient(90deg, #9ca3af, #00f3ff, #9d4edd, #ff006e, #9ca3af)",
-                backgroundSize: "200% 100%",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text"
-              }}
-            >
-              Driven by artificial intelligence, I build tools that turn ideas into smart solutions and meaningful outcomes. 
-              With solid knowledge, I can create anything using AI while exploring opportunities for innovation.
-            </motion.span>
+            {showTypewriter ? (
+              <TypewriterText 
+                text="Driven by artificial intelligence, I build tools that turn ideas into smart solutions and meaningful outcomes. With solid knowledge, I can create anything using AI while exploring opportunities for innovation."
+                delay={2000}
+                speed={30}
+              />
+            ) : (
+              <motion.span
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{
+                  background: "linear-gradient(90deg, #9ca3af, #00f3ff, #9d4edd, #ff006e, #9ca3af)",
+                  backgroundSize: "200% 100%",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text"
+                }}
+              >
+                Driven by artificial intelligence, I build tools that turn ideas into smart solutions and meaningful outcomes. 
+                With solid knowledge, I can create anything using AI while exploring opportunities for innovation.
+              </motion.span>
+            )}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -205,8 +338,16 @@ const Hero: React.FC = () => {
                 boxShadow: "0 20px 40px rgba(0, 243, 255, 0.3)"
               }}
               whileTap={{ scale: 0.95 }}
+              onHoverStart={() => {
+                // Button hover sound effect could be added here
+              }}
             >
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-2 relative">
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-lg opacity-0"
+                  whileHover={{ opacity: 0.2 }}
+                  transition={{ duration: 0.3 }}
+                />
                 <motion.span
                   animate={{
                     y: [0, -2, 0]
@@ -236,7 +377,7 @@ const Hero: React.FC = () => {
             </motion.button>
             
             <motion.button 
-              className="group px-8 py-4 border border-cyan-500 rounded-lg font-semibold hover:bg-cyan-500/10 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25 transform"
+              className="group px-8 py-4 border border-cyan-500 rounded-lg font-semibold hover:bg-cyan-500/10 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25 transform relative overflow-hidden"
               whileHover={{ 
                 scale: 1.1,
                 borderColor: "#ff006e",
@@ -244,6 +385,11 @@ const Hero: React.FC = () => {
               }}
               whileTap={{ scale: 0.95 }}
             >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 opacity-0"
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              />
               <span className="flex items-center justify-center gap-2">
                 <motion.div
                   animate={{
@@ -276,14 +422,20 @@ const Hero: React.FC = () => {
               href="https://github.com/Shakeel827"
               target="_blank"
               rel="noopener noreferrer"
-              className="group p-3 rounded-full border border-gray-700 hover:border-cyan-500 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-cyan-500/25"
+              className="group p-3 rounded-full border border-gray-700 hover:border-cyan-500 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-cyan-500/25 relative overflow-hidden"
               whileHover={{ 
                 scale: 1.2,
                 rotate: 360,
-                borderColor: "#00f3ff"
+                borderColor: "#00f3ff",
+                boxShadow: "0 0 30px rgba(0, 243, 255, 0.5)"
               }}
               whileTap={{ scale: 0.9 }}
             >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-transparent rounded-full opacity-0"
+                whileHover={{ opacity: 1, rotate: 180 }}
+                transition={{ duration: 0.5 }}
+              />
               <motion.div
                 animate={{
                   rotate: [0, 10, -10, 0]
@@ -302,14 +454,20 @@ const Hero: React.FC = () => {
               href="https://www.linkedin.com/in/shaik-mohammad-shakeel-ba5a771b1/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group p-3 rounded-full border border-gray-700 hover:border-purple-500 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-purple-500/25"
+              className="group p-3 rounded-full border border-gray-700 hover:border-purple-500 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-purple-500/25 relative overflow-hidden"
               whileHover={{ 
                 scale: 1.2,
                 rotate: -360,
-                borderColor: "#9d4edd"
+                borderColor: "#9d4edd",
+                boxShadow: "0 0 30px rgba(157, 78, 221, 0.5)"
               }}
               whileTap={{ scale: 0.9 }}
             >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-transparent rounded-full opacity-0"
+                whileHover={{ opacity: 1, rotate: -180 }}
+                transition={{ duration: 0.5 }}
+              />
               <motion.div
                 animate={{
                   y: [0, -3, 0],
@@ -327,14 +485,20 @@ const Hero: React.FC = () => {
             
             <motion.a
               href="mailto:skshakeel9086@gmail.com"
-              className="group p-3 rounded-full border border-gray-700 hover:border-pink-500 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-pink-500/25"
+              className="group p-3 rounded-full border border-gray-700 hover:border-pink-500 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-pink-500/25 relative overflow-hidden"
               whileHover={{ 
                 scale: 1.2,
                 rotate: 180,
-                borderColor: "#ff006e"
+                borderColor: "#ff006e",
+                boxShadow: "0 0 30px rgba(255, 0, 110, 0.5)"
               }}
               whileTap={{ scale: 0.9 }}
             >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-transparent rounded-full opacity-0"
+                whileHover={{ opacity: 1, rotate: 90 }}
+                transition={{ duration: 0.5 }}
+              />
               <motion.div
                 animate={{
                   rotate: [0, 15, -15, 0],

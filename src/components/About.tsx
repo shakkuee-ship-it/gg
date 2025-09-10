@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 
 const About: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const title = "About Me";
   
@@ -63,7 +64,15 @@ const About: React.FC = () => {
       observer.observe(element);
     }
 
-    return () => observer.disconnect();
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   const contactInfo = [
@@ -76,6 +85,50 @@ const About: React.FC = () => {
 
   return (
     <section className="py-20 relative">
+      {/* Cursor follow glow */}
+      <motion.div
+        className="fixed w-96 h-96 pointer-events-none z-10"
+        style={{
+          background: "radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%)",
+          left: mousePosition.x - 192,
+          top: mousePosition.y - 192,
+        }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.3, 0.6, 0.3]
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+
+      {/* Floating particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-purple-400/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              x: [0, Math.random() * 100 - 50, 0],
+              scale: [0, 1, 0],
+              opacity: [0, 0.6, 0]
+            }}
+            transition={{
+              duration: Math.random() * 8 + 6,
+              repeat: Infinity,
+              delay: Math.random() * 4
+            }}
+          />
+        ))}
+      </div>
+
       <div className="container mx-auto px-4">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="text-center mb-16">
@@ -137,8 +190,21 @@ const About: React.FC = () => {
                       src="/aiease_1755327608838.jpg" 
                       alt="AI Ease" 
                       className="w-full h-full object-cover rounded-full"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ duration: 0.3 }}
+                      whileHover={{ 
+                        scale: 1.1,
+                        filter: "brightness(1.2) contrast(1.1)"
+                      }}
+                      transition={{ duration: 0.5 }}
+                      animate={{
+                        filter: [
+                          "brightness(1) contrast(1)",
+                          "brightness(1.05) contrast(1.02)",
+                          "brightness(1) contrast(1)"
+                        ]
+                      }}
+                      style={{
+                        transition: "filter 3s ease-in-out infinite"
+                      }}
                     />
                   </div>
                   <motion.div 
@@ -179,11 +245,17 @@ const About: React.FC = () => {
                   <motion.div 
                     className="text-2xl font-bold text-cyan-400"
                     animate={{
-                      scale: [1, 1.2, 1],
-                      color: ["#06b6d4", "#8b5cf6", "#ec4899", "#06b6d4"]
+                      scale: [1, 1.3, 1],
+                      color: ["#06b6d4", "#8b5cf6", "#ec4899", "#06b6d4"],
+                      textShadow: [
+                        "0 0 10px rgba(6, 182, 212, 0.5)",
+                        "0 0 20px rgba(139, 92, 246, 0.8)",
+                        "0 0 15px rgba(236, 72, 153, 0.6)",
+                        "0 0 10px rgba(6, 182, 212, 0.5)"
+                      ]
                     }}
                     transition={{
-                      duration: 3,
+                      duration: 4,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
@@ -213,11 +285,17 @@ const About: React.FC = () => {
                   <motion.div 
                     className="text-2xl font-bold text-purple-400"
                     animate={{
-                      scale: [1, 1.3, 1],
-                      color: ["#8b5cf6", "#ec4899", "#06b6d4", "#8b5cf6"]
+                      scale: [1, 1.4, 1],
+                      color: ["#8b5cf6", "#ec4899", "#06b6d4", "#8b5cf6"],
+                      textShadow: [
+                        "0 0 10px rgba(139, 92, 246, 0.5)",
+                        "0 0 20px rgba(236, 72, 153, 0.8)",
+                        "0 0 15px rgba(6, 182, 212, 0.6)",
+                        "0 0 10px rgba(139, 92, 246, 0.5)"
+                      ]
                     }}
                     transition={{
-                      duration: 2.5,
+                      duration: 3.5,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
@@ -306,26 +384,34 @@ const About: React.FC = () => {
                       whileHover={{ 
                         scale: 1.05,
                         x: 10,
-                        borderColor: "rgba(6, 182, 212, 0.5)"
+                        borderColor: "rgba(6, 182, 212, 0.5)",
+                        backgroundColor: "rgba(6, 182, 212, 0.05)"
                       }}
                     >
                       <motion.div
                         animate={{
-                          rotate: [0, 10, -10, 0],
+                          rotate: [0, 15, -15, 0],
+                          scale: [1, 1.2, 1]
                           scale: [1, 1.1, 1]
                         }}
                         transition={{
-                          duration: 3,
+                          duration: 4,
                           repeat: Infinity,
                           ease: "easeInOut",
                           delay: index * 0.5
                         }}
                       >
-                        <info.icon className={`w-5 h-5 ${info.color} group-hover:scale-110 transition-transform duration-300`} />
+                        <info.icon className={`w-5 h-5 ${info.color} group-hover:scale-125 transition-all duration-300`} />
                       </motion.div>
-                      <span className="text-gray-300 group-hover:text-white transition-colors duration-300">
+                      <motion.span 
+                        className="text-gray-300 group-hover:text-white transition-colors duration-300"
+                        whileHover={{
+                          x: 5,
+                          color: "#ffffff"
+                        }}
+                      >
                         {info.text}
-                      </span>
+                      </motion.span>
                     </motion.div>
                   ))}
                 </div>
