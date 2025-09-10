@@ -1,69 +1,69 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { GraduationCap, Calendar, MapPin, Award, BookOpen, Shield } from 'lucide-react';
+
+const educationData = [
+  {
+    institution: 'Bapatla Engineering College',
+    degree: 'Bachelor of Technology',
+    field: 'Cybersecurity',
+    duration: '2021 - 2025',
+    location: 'Bapatla, Andhra Pradesh',
+    description: 'Specialized in cybersecurity fundamentals, network security, ethical hacking, and digital forensics. Active participant in technical clubs and security awareness programs.',
+    achievements: [
+      'Relevant coursework in Network Security, Cryptography, and Ethical Hacking',
+      'Participated in cybersecurity workshops and seminars',
+      'Member of the Computer Science Technical Club',
+      'Completed multiple security-related projects and case studies'
+    ],
+    color: 'cyan',
+    icon: Shield
+  },
+  {
+    institution: 'Narayana Junior College',
+    degree: 'Intermediate Education',
+    field: 'Mathematics, Physics, Chemistry (MPC)',
+    duration: '2019 - 2021',
+    location: 'Andhra Pradesh',
+    description: 'Strong foundation in mathematics and sciences, developing analytical thinking and problem-solving skills that form the basis for technical expertise.',
+    achievements: [
+      'Excellent performance in Mathematics and Physics',
+      'Developed strong analytical and logical reasoning skills',
+      'Participated in science exhibitions and competitions',
+      'Foundation for technical education and engineering concepts'
+    ],
+    color: 'purple',
+    icon: BookOpen
+  }
+];
+
+const colorMap = {
+  cyan: {
+    gradient: 'from-cyan-500 to-blue-500',
+    border: 'border-cyan-500/30',
+    text: 'text-cyan-400',
+    bg: 'bg-cyan-500/10',
+    shadow: 'shadow-cyan-500/25'
+  },
+  purple: {
+    gradient: 'from-purple-500 to-pink-500',
+    border: 'border-purple-500/30',
+    text: 'text-purple-400',
+    bg: 'bg-purple-500/10',
+    shadow: 'shadow-purple-500/25'
+  }
+};
 
 const Education: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  const educationData = [
-    {
-      institution: 'Bapatla Engineering College',
-      degree: 'Bachelor of Technology',
-      field: 'Cybersecurity',
-      duration: '2021 - 2025',
-      location: 'Bapatla, Andhra Pradesh',
-      description: 'Specialized in cybersecurity fundamentals, network security, ethical hacking, and digital forensics. Active participant in technical clubs and security awareness programs.',
-      achievements: [
-        'Relevant coursework in Network Security, Cryptography, and Ethical Hacking',
-        'Participated in cybersecurity workshops and seminars',
-        'Member of the Computer Science Technical Club',
-        'Completed multiple security-related projects and case studies'
-      ],
-      color: 'cyan',
-      icon: Shield
-    },
-    {
-      institution: 'Narayana Junior College',
-      degree: 'Intermediate Education',
-      field: 'Mathematics, Physics, Chemistry (MPC)',
-      duration: '2019 - 2021',
-      location: 'Andhra Pradesh',
-      description: 'Strong foundation in mathematics and sciences, developing analytical thinking and problem-solving skills that form the basis for technical expertise.',
-      achievements: [
-        'Excellent performance in Mathematics and Physics',
-        'Developed strong analytical and logical reasoning skills',
-        'Participated in science exhibitions and competitions',
-        'Foundation for technical education and engineering concepts'
-      ],
-      color: 'purple',
-      icon: BookOpen
-    }
-  ];
-
-  const colorMap = {
-    cyan: {
-      gradient: 'from-cyan-500 to-blue-500',
-      border: 'border-cyan-500/30',
-      text: 'text-cyan-400',
-      bg: 'bg-cyan-500/10',
-      shadow: 'shadow-cyan-500/25'
-    },
-    purple: {
-      gradient: 'from-purple-500 to-pink-500',
-      border: 'border-purple-500/30',
-      text: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      shadow: 'shadow-purple-500/25'
-    }
-  };
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          // Animate items with staggered delay
           educationData.forEach((_, index) => {
             setTimeout(() => {
               setVisibleItems(prev => [...prev, index]);
@@ -75,15 +75,13 @@ const Education: React.FC = () => {
     );
 
     const element = document.getElementById('education');
-    if (element) {
-      observer.observe(element);
-    }
+    if (element) observer.observe(element);
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
+    
     window.addEventListener('mousemove', handleMouseMove);
-
     return () => {
       observer.disconnect();
       window.removeEventListener('mousemove', handleMouseMove);
@@ -91,8 +89,7 @@ const Education: React.FC = () => {
   }, []);
 
   return (
-    <section className="py-20 relative">
-      {/* Cursor follow glow */}
+    <section id="education" className="py-20 relative">
       <motion.div
         className="fixed w-96 h-96 pointer-events-none z-10"
         style={{
@@ -111,7 +108,6 @@ const Education: React.FC = () => {
         }}
       />
 
-      {/* Floating academic elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(8)].map((_, i) => (
           <motion.div
@@ -153,7 +149,6 @@ const Education: React.FC = () => {
           </div>
 
           <div className="relative max-w-4xl mx-auto space-y-12">
-
             {educationData.map((edu, index) => {
               const colors = colorMap[edu.color as keyof typeof colorMap];
               const IconComponent = edu.icon;
@@ -178,7 +173,6 @@ const Education: React.FC = () => {
                     animate={visibleItems.includes(index) ? { opacity: 1, y: 0, rotateX: 0 } : {}}
                     transition={{ delay: index * 0.3, duration: 0.8, ease: "backOut" }}
                   >
-                    {/* Animated background pattern */}
                     <motion.div
                       className="absolute inset-0 opacity-0 group-hover:opacity-5"
                       animate={{
@@ -196,11 +190,9 @@ const Education: React.FC = () => {
                       }}
                     />
 
-                    {/* Header Section */}
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6">
                       <div className="flex-1">
                         <div className="flex items-center gap-4 mb-3 relative">
-                          {/* Timeline Node */}
                           <motion.div 
                             className="absolute left-8 md:left-1/2 -translate-x-px top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500 via-purple-500 to-pink-500 opacity-30"
                             animate={{
@@ -310,7 +302,6 @@ const Education: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Meta Information */}
                         <div className="flex flex-wrap gap-6 text-gray-400 mb-4">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
@@ -323,7 +314,6 @@ const Education: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Academic Status Badge */}
                       <motion.div 
                         className={`${colors.bg} ${colors.border} border rounded-full px-4 py-2 flex items-center gap-2 mt-4 lg:mt-0`}
                         whileHover={{ scale: 1.1, y: -2 }}
@@ -375,7 +365,6 @@ const Education: React.FC = () => {
                       </motion.div>
                     </div>
 
-                    {/* Description */}
                     <motion.p 
                       className="text-gray-300 leading-relaxed mb-6 text-lg"
                       initial={{ opacity: 0, y: 20 }}
@@ -385,7 +374,6 @@ const Education: React.FC = () => {
                       {edu.description}
                     </motion.p>
 
-                    {/* Achievements */}
                     <div>
                       <motion.h4 
                         className="flex items-center gap-2 text-lg font-semibold text-gray-200 mb-4"
@@ -452,7 +440,6 @@ const Education: React.FC = () => {
             })}
           </div>
 
-          {/* Academic Stats Summary */}
           <motion.div 
             className="mt-16 grid md:grid-cols-3 gap-6 max-w-3xl mx-auto"
             initial={{ opacity: 0, y: 50 }}
