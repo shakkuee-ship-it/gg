@@ -49,6 +49,7 @@ const About: React.FC = () => {
       }
     })
   };
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -64,7 +65,7 @@ const About: React.FC = () => {
       observer.observe(element);
     }
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
@@ -84,7 +85,7 @@ const About: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 relative">
+    <section id="about" className="py-20 relative">
       {/* Cursor follow glow */}
       <motion.div
         className="fixed w-96 h-96 pointer-events-none z-10"
@@ -339,7 +340,7 @@ const About: React.FC = () => {
                   My journey includes hands-on experience at leading companies like 
                   <span className="text-cyan-400 font-semibold"> Flipkart</span> and 
                   <span className="text-purple-400 font-semibold"> Travelplus</span>, 
-                  where I've honed my analytical and operational skills. I\'m passionate about 
+                  where I've honed my analytical and operational skills. I'm passionate about 
                   creating secure, user-centric solutions that make a real impact.
                 </motion.p>
               </div>
@@ -391,7 +392,6 @@ const About: React.FC = () => {
                       <motion.div
                         animate={{
                           rotate: [0, 15, -15, 0],
-                          scale: [1, 1.2, 1]
                           scale: [1, 1.1, 1]
                         }}
                         transition={{
